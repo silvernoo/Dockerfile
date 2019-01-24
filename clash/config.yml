@@ -1,0 +1,99 @@
+# port of HTTP
+port: 9081
+
+# port of SOCKS5
+socks-port: 9080
+
+# redir port for Linux and macOS
+redir-port: 7892
+
+allow-lan: true
+
+# Rule / Global/ Direct (default is Rule)
+mode: Rule
+
+# set log level to stdout (default is info)
+# info / warning / error / debug / silent
+log-level: info
+
+# A RESTful API for clash
+external-controller: 0.0.0.0:9090
+
+# you can put the static web resource (such as clash-dashboard) to a directory, and clash would serve in `${API}/ui`
+# input is a relative path to the configuration directory or an absolute path
+# external-ui: folder
+
+# Secret for RESTful API (Optional)
+# secret: ""
+
+#dns:
+#  enable: true # set true to enable dns (default is false)
+#  ipv6: false # default is false
+#  listen: 0.0.0.0:53
+#  enhanced-mode: redir-host
+#  nameserver:
+#    - tls://dns.rubyfish.cn:853
+#  fallback:
+#    - tls://1.1.1.1:853
+#    - tls://1.0.0.1:853
+
+Proxy:
+
+# shadowsocks
+# The types of cipher are consistent with go-shadowsocks2
+# support AEAD_AES_128_GCM AEAD_AES_192_GCM AEAD_AES_256_GCM AEAD_CHACHA20_POLY1305 AES-128-CTR AES-192-CTR AES-256-CTR AES-128-CFB AES-192-CFB AES-256-CFB CHACHA20-IETF XCHACHA20
+# In addition to what go-shadowsocks2 supports, it also supports chacha20 rc4-md5 xchacha20-ietf-poly1305
+- { name: "home", type: ss, server: frp.cngrok.com, port: 10778, cipher: AES-256-CFB, password: "7TthlwFbrRDcCDsSB1qV" }
+- { name: "ss1", type: ss, server: tw.hinet.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss5", type: ss, server: aus.aws.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss6", type: ss, server: sgp.aws.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss10", type: ss, server: 81.90.188.184, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss11", type: ss, server: jp.aws.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss12", type: ss, server: jp.aws2.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss13", type: ss, server: 153.149.168.21, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss14", type: ss, server: jp.gmo.m3lg534ff.ccnet.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss16", type: ss, server: 210.129.10.95, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss18", type: ss, server: 203.137.192.109, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss19", type: ss, server: jp.kopti.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss20", type: ss, server: 193.38.139.166, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss21", type: ss, server: 194.156.230.164, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss22", type: ss, server: jp.nhn.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss26", type: ss, server: jp.ali2.pdpwk1.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss27", type: ss, server: 182.93.60.148, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss28", type: ss, server: 79.133.33.107, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss29", type: ss, server: us.aws.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss30", type: ss, server: 103.101.153.240, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss32", type: ss, server: 38.143.2.204, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss34", type: ss, server: 38.143.2.55, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss35", type: ss, server: 38.143.2.60, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss36", type: ss, server: 65.49.71.116, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss37", type: ss, server: 65.49.71.117, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss38", type: ss, server: 103.86.68.138, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss39", type: ss, server: 14.192.49.47, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss40", type: ss, server: 14.192.49.39, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss41", type: ss, server: 14.192.49.41, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss42", type: ss, server: 14.192.49.43, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss43", type: ss, server: 14.192.49.45, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss46", type: ss, server: 103.129.197.140, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss49", type: ss, server: kr.aws.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss50", type: ss, server: 116.213.41.120, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss55", type: ss, server: cchkt3.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss56", type: ss, server: cchkt5.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss57", type: ss, server: hk.hkt6.ccnet.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss58", type: ss, server: cchkt8.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss59", type: ss, server: cchkta.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss60", type: ss, server: cchktc.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss61", type: ss, server: cchktd.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss62", type: ss, server: cchktg.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss63", type: ss, server: cchkth.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+- { name: "ss66", type: ss, server: hk.wtt.c2s566.ccddns.online, port: 20189, cipher: CHACHA20-IETF, password: "Cjs2ko" }
+
+Proxy Group:
+# url-test select which proxy will be used by benchmarking speed to a URL.
+- { name: "auto", type: url-test, proxies: ["ss1","ss5","ss6","ss10","ss11","ss12","ss13","ss14","ss16","ss18","ss19","ss20","ss21","ss22","ss26","ss27","ss28","ss29","ss30","ss32","ss34","ss35","ss36","ss37","ss38","ss39","ss40","ss41","ss42","ss43","ss46","ss49","ss50","ss55","ss56","ss57","ss58","ss59","ss60","ss61","ss62","ss63","ss66"], url: http://www.gstatic.com/generate_204, interval: 300 }
+
+Rule:
+- IP-CIDR,127.0.0.0/24,DIRECT
+- IP-CIDR,192.168.9.0/24,DIRECT
+- GEOIP,CN,DIRECT
+- FINAL,auto

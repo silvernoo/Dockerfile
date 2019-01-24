@@ -1,0 +1,6 @@
+FROM suconghou/shadowsocks:arm64v8 AS build
+RUN ls -lh /usr/local/bin/ss-server
+FROM scratch
+COPY --from=build /usr/local/bin/ss-server /
+ENTRYPOINT ["/ss-server"]
+EXPOSE 8388

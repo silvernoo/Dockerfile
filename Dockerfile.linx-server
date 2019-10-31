@@ -1,5 +1,5 @@
 ARG ARCH
-FROM $ARCH/golang:alpine3.8 AS build
+FROM $ARCH/golang:alpine AS build
 
 ARG QEMU_BIN
 COPY $QEMU_BIN /usr/bin
@@ -13,7 +13,7 @@ RUN set -ex \
         && apk del .build-deps
 
 ARG ARCH
-FROM $ARCH/alpine:3.8
+FROM $ARCH/alpine
 
 ARG QEMU_BIN
 COPY $QEMU_BIN /usr/bin

@@ -8,6 +8,7 @@ on:
     - cron: 0 0 * * 1
 
 jobs:
+
   shiori:
     runs-on: ubuntu-latest
     strategy:
@@ -45,257 +46,294 @@ jobs:
         ARCH: ${{ matrix.arch }}
 
 
-  # linx-server:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Clone repo
-  #     run: |
-  #       git clone https://github.com/andreimarcu/linx-server.git
-  #       mv Dockerfile.linx-server linx-server/Dockerfile
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       cd linx-server
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/linx-server:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/linx-server:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
+  shiori:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Clone repo
+      run: |
+        git clone https://github.com/go-shiori/shiori.git
+        mv Dockerfile.shiori shiori/Dockerfile
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        cd shiori
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/shiori:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/shiori:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
 
 
-  # filebrowser:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Get latest filebrowser
-  #     run: |
-  #       sudo apt-get update && sudo apt-get install -y wget curl jq
-  #       tag="`curl --silent "https://api.github.com/repos/filebrowser/filebrowser/tags" | jq -r '.[0].name'`"
-  #       if [[ "$ARCH" == "amd64" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-amd64-filebrowser.tar.gz; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-armv7-filebrowser.tar.gz; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-arm64-filebrowser.tar.gz; fi
-  #       tar xvzf latest.tar.gz -C .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.filebrowser  -t matosama/filebrowser:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/filebrowser:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-
-  # aria2:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Get latest aria-Ng
-  #     run: |
-  #       sudo apt-get update && sudo apt-get install -y wget unzip curl jq
-  #       tag="`curl --silent "https://api.github.com/repos/mayswind/AriaNg/tags" | jq -r '.[0].name'`"
-  #       wget -O latest.zip "https://github.com/mayswind/AriaNg/releases/download/"$tag"/AriaNg-"$tag".zip"
-  #       unzip latest.zip -d AriaNg
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.aria2  -t matosama/aria2:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/aria2:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
+  linx-server:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Clone repo
+      run: |
+        git clone https://github.com/andreimarcu/linx-server.git
+        mv Dockerfile.linx-server linx-server/Dockerfile
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        cd linx-server
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/linx-server:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/linx-server:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
 
 
-  # puppeteer:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.puppeteer  -t matosama/puppeteer:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/puppeteer:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
+  filebrowser:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Get latest filebrowser
+      run: |
+        sudo apt-get update && sudo apt-get install -y wget curl jq
+        tag="`curl --silent "https://api.github.com/repos/filebrowser/filebrowser/tags" | jq -r '.[0].name'`"
+        if [[ "$ARCH" == "amd64" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-amd64-filebrowser.tar.gz; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-armv7-filebrowser.tar.gz; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then wget -O latest.tar.gz https://github.com/filebrowser/filebrowser/releases/download/"$tag"/linux-arm64-filebrowser.tar.gz; fi
+        tar xvzf latest.tar.gz -C .
+      env:
+        ARCH: ${{ matrix.arch }}
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.filebrowser  -t matosama/filebrowser:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/filebrowser:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
 
-  # gossa:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Clone repo
-  #     run: |
-  #       git clone --recurse-submodules https://github.com/pldubouilh/gossa.git
-  #       mv Dockerfile.gossa gossa/docker/build.Dockerfile
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       cd gossa
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file docker/build.Dockerfile  -t matosama/gossa:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/gossa:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
+  aria2:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Get latest aria-Ng
+      run: |
+        sudo apt-get update && sudo apt-get install -y wget unzip curl jq
+        tag="`curl --silent "https://api.github.com/repos/mayswind/AriaNg/tags" | jq -r '.[0].name'`"
+        wget -O latest.zip "https://github.com/mayswind/AriaNg/releases/download/"$tag"/AriaNg-"$tag".zip"
+        unzip latest.zip -d AriaNg
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.aria2  -t matosama/aria2:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/aria2:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
 
-  # cowyo:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Clone repo
-  #     run: |
-  #       git clone https://github.com/schollz/cowyo.git
-  #       mv Dockerfile.cowyo cowyo/Dockerfile
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       cd cowyo
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/cowyo:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/cowyo:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
 
-  # clash:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64v8,arm32v7,amd64]
-  #   steps:
-  #   - uses: actions/checkout@master
-  #   - name: Clone repo
-  #     run: |
-  #       git clone https://github.com/Dreamacro/clash.git
-  #       mv Dockerfile.clash clash/Dockerfile
-  #   - name: Get qemu-user-static
-  #     run: sudo apt-get update && sudo apt-get install -y qemu-user-static
-  #   - name: Configure Docker
-  #     run: |
-  #       echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  #       sudo service docker restart
-  #       docker run --rm --privileged multiarch/qemu-user-static:register
-  #   - name: Build the Docker image
-  #     run: |
-  #       cd clash
-  #       if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
-  #       if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
-  #       if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
-  #       cp /usr/bin/$QEMU_BIN .
-  #       docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/clash:"$ARCH" .
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
-  #       DOCKER_CLI_EXPERIMENTAL: enabled
-  #   - name: Log in to registry
-  #     run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
-  #   - name: Push image
-  #     run: docker push matosama/clash:"$ARCH"
-  #     env:
-  #       ARCH: ${{ matrix.arch }}
+  puppeteer:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile.puppeteer  -t matosama/puppeteer:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/puppeteer:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
+
+  gossa:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Clone repo
+      run: |
+        git clone --recurse-submodules https://github.com/pldubouilh/gossa.git
+        mv Dockerfile.gossa gossa/docker/build.Dockerfile
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        cd gossa
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file docker/build.Dockerfile  -t matosama/gossa:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/gossa:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
+
+  cowyo:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Clone repo
+      run: |
+        git clone https://github.com/schollz/cowyo.git
+        mv Dockerfile.cowyo cowyo/Dockerfile
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        cd cowyo
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/cowyo:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/cowyo:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}
+
+  clash:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64v8,arm32v7,amd64]
+    steps:
+    - uses: actions/checkout@master
+    - name: Clone repo
+      run: |
+        git clone https://github.com/Dreamacro/clash.git
+        mv Dockerfile.clash clash/Dockerfile
+    - name: Get qemu-user-static
+      run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+    - name: Configure Docker
+      run: |
+        echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        sudo service docker restart
+        docker run --rm --privileged multiarch/qemu-user-static:register
+    - name: Build the Docker image
+      run: |
+        cd clash
+        if [[ "$ARCH" == "amd64" ]]; then export QEMU_BIN="qemu-x86_64-static"; fi
+        if [[ "$ARCH" == "arm32v7" ]]; then export QEMU_BIN="qemu-arm-static"; fi
+        if [[ "$ARCH" == "arm64v8" ]]; then export QEMU_BIN="qemu-aarch64-static"; fi
+        cp /usr/bin/$QEMU_BIN .
+        docker build --build-arg="ARCH=$ARCH" --build-arg="QEMU_BIN=$QEMU_BIN" --squash --file Dockerfile  -t matosama/clash:"$ARCH" .
+      env:
+        ARCH: ${{ matrix.arch }}
+        DOCKER_CLI_EXPERIMENTAL: enabled
+    - name: Log in to registry
+      run: echo ${{ secrets.DOCKER_PASSSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USER }} --password-stdin
+    - name: Push image
+      run: docker push matosama/clash:"$ARCH"
+      env:
+        ARCH: ${{ matrix.arch }}

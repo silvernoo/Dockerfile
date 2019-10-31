@@ -1,0 +1,13 @@
+ARG ARCH
+FROM $ARCH/alpine:latest
+
+ARG QEMU_BIN
+COPY $QEMU_BIN /usr/bin
+
+VOLUME /srv
+EXPOSE 10000
+
+COPY filebrowser-file/.docker.json /.filebrowser.json
+COPY filebrowser /filebrowser
+
+ENTRYPOINT [ "/filebrowser" ]

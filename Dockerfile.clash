@@ -1,0 +1,26 @@
+ARG ARCH
+FROM $ARCH/golang:alpine as builder
+
+ARG QEMU_BIN
+COPY $QEMU_BIN /usr/bin
+
+RUN apk add --no-cache make git && \
+    wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz -O /tmp/GeoLite2-Country.tar.gz && \
+    tar zxvf /tmp/GeoLite2-Country.tar.gz -C /tmp && \
+    mv /tmp/GeoLite2-Country_*/GeoLite2-Country.mmdb /Country.mmdb
+
+WORKDIR /clash-src
+COPY . /clash-src
+RUN go mod download && \
+    make linux-armv8 && \
+    mv ./bin/clash-linux-armv8 /clash
+
+FROM $ARCH/alpine:latest
+
+ARG QEMU_BIN
+COPY $QEMU_BIN /usr/bin
+
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /Country.mmdb /root/.config/clash/
+COPY --from=builder /clash /
+ENTRYPOINT ["/clash"]
